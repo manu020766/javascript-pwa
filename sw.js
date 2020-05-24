@@ -8,7 +8,8 @@ var urlsToCache = [
   '/css/styles.css',
   '/js/materialize.min.js',
   '/js/ui.js',
-  '/img/dish.png',
+  '/img/dish.webp',
+  'favicon.ico',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.gstatic.com/s/materialicons/v50/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2',
   '/js/app.js',
@@ -24,45 +25,18 @@ var urlsToCache = [
   '/img/icons/icon-512x512.png',
 ];
 
-self.addEventListener('install', function(event) {
-  // Perform install steps
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
+      .then(cache => cache.addAll(urlsToCache))
+  )
+})
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function(event) {});
 
-//     var cacheWhitelist = ['my-site-cache-v1'];
-  
-//     event.waitUntil(
-//       caches.keys().then(function(cacheNames) {
-//         return Promise.all(
-//           cacheNames.map(function(cacheName) {
-//             if (cacheWhitelist.indexOf(cacheName) === -1) {
-//               return caches.delete(cacheName);
-//             }
-//           })
-//         );
-//       })
-//     );
-});
-
-
-self.addEventListener('fetch', function(event) {
-    event.respondWith(
-      caches.match(event.request)
-        .then(function(response) {
-          // Cache hit - return response
-          if (response) {
-            return response;
-          }
-          return fetch(event.request);
-        }
-      )
-    );
-  });
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(cacheRes => cacheRes || event.request)
+  )
+})
