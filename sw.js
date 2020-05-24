@@ -32,7 +32,16 @@ self.addEventListener('install', event => {
   )
 })
 
-self.addEventListener('activate', function(event) {});
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(keys => {
+        return Promise.all(
+          keys.filter(key => key !== CACHE_NAME)
+              .map(key => caches.delete(key))
+        )
+    })
+  )
+});
 
 self.addEventListener('fetch', event => {
   event.respondWith(
