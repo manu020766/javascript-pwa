@@ -1,8 +1,9 @@
-var staticCacheName = 'static-cache-v1'
+var staticCacheName = 'static-cache-v2'
 var dynamicCacheName = 'dynamic-cache-v2'
 var urlsToCache = [
   '/',
   '/index.html',
+  '/pages/fallback.html',
   // '/pages/about.html',
   // '/pages/contact.html',
   '/css/materialize.min.css',
@@ -37,7 +38,7 @@ self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(keys => {
         return Promise.all(
-          keys.filter(key => key !== staticCacheName)
+          keys.filter(key => key !== staticCacheName && key !== dynamicCacheName)
               .map(key => caches.delete(key))
         )
     })
@@ -53,6 +54,6 @@ self.addEventListener('fetch', event => {
           return fetchRes
         })
       })
-    })
+    }).catch(() => caches.match('/pages/fallback.html'))
   )
 })
