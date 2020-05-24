@@ -1,9 +1,10 @@
-var CACHE_NAME = 'my-site-cache-v1';
+var staticCacheName = 'static-cache-v1'
+var dynamicCacheName = 'dynamic-cache-v2'
 var urlsToCache = [
   '/',
   '/index.html',
-  '/pages/about.html',
-  '/pages/contact.html',
+  // '/pages/about.html',
+  // '/pages/contact.html',
   '/css/materialize.min.css',
   '/css/styles.css',
   '/js/materialize.min.js',
@@ -27,7 +28,7 @@ var urlsToCache = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(staticCacheName)
       .then(cache => cache.addAll(urlsToCache))
   )
 })
@@ -36,7 +37,7 @@ self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(keys => {
         return Promise.all(
-          keys.filter(key => key !== CACHE_NAME)
+          keys.filter(key => key !== staticCacheName)
               .map(key => caches.delete(key))
         )
     })
@@ -45,7 +46,13 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(cacheRes => cacheRes || event.request)
+    caches.match(event.request).then(cacheRes => {
+      return cacheRes || fetch(event.request).then(fetchRes => {
+        return caches.open(dynamicCacheName).then(cache => {
+          cache.put(event.request.url, fetchRes.clone())
+          return fetchRes
+        })
+      })
+    })
   )
 })
