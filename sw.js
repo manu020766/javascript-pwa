@@ -54,6 +54,12 @@ self.addEventListener('fetch', event => {
           return fetchRes
         })
       })
-    }).catch(() => caches.match('/pages/fallback.html'))
+    }).catch(() => {
+      console.log(event.request.url)
+      console.log(event.request.url.indexOf('html') > -1)
+      if (event.request.url.indexOf('html') > -1) {
+        return caches.match('/pages/fallback.html')
+      }
+    })
   )
 })
